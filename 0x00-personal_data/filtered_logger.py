@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""module contain filter_datum function"""
-
+""" Module filtered_logger
+"""
+from mysql.connector import Error
 from typing import List
-import re
 import logging
 import mysql.connector
 import os
-from mysql.connector import Error
-
+import re
 
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
 
-def filter_datum(fields: List[str], redaction: str,
-                 message: str, separator: str) -> str:
+def filter_datum(fields: List[str], redaction: str, message: str,
+                 separator: str) -> str:
     """Function that returns the log message obfuscated"""
     for field in fields:
         message = re.sub(field + "=.*?" + separator,
@@ -22,7 +21,7 @@ def filter_datum(fields: List[str], redaction: str,
 
 
 def get_logger() -> logging.Logger:
-    """function that return logging.Logger object"""
+    """Function that returns a logging.Logger object"""
     logger = logging.getLogger("user_data")
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(RedactingFormatter(list(PII_FIELDS)))
@@ -35,7 +34,6 @@ def get_logger() -> logging.Logger:
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """Function that returns a connector to the database"""
-    
     db_user = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
     db_password = os.getenv("PERSONAL_DATA_DB_PASSWORD", "")
     db_host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
@@ -59,29 +57,39 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
 
 
 class RedactingFormatter(logging.Formatter):
-    """ Redacting Formatter class
-        """
+    """Redacting Formatter class"""
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
     SEPARATOR = ";"
 
-    def __init__(self, fields: List[str]):
+    def __init__(self, fields: List[str] = None):
+        """Constructor"""
         super(RedactingFormatter, self).__init__(self.FORMAT)
         self.fields = fields
 
     def format(self, record: logging.LogRecord) -> str:
-        record.msg = filter_datum(self.fields, self.REDACTION,
-                                  record.getMessage(), self.SEPARATOR)
-        return super().format(record)
+        """Function that filters values in incoming log records using
+        filter_datum. Values for fields in fields should be filtered.
+        """
+        message = super(RedactingFormatter, self).format(record)
+        return filter_datum(
+            fields=self.fields,
+            redaction=self.REDACTION,
+            message=message,
+            separator=self.SEPARATOR,
+        )
 
 
 def main():
-    """main function"""
-
-    columns = ["name", "email", "phone", "ssn", "password"]
-
-    query = f"SELECT {', '.join(columns)} FROM users;"
+    """ Main function
+    """
+    columns = [
+        "name", "email", "phone", "ssn", "password", "ip", "last_login",
+        "user_agent"
+    ]
+    fields = ','.join(columns)
+    query = f"SELECT {fields} FROM users;"
 
     info_logger = get_logger()
     connection = get_db()
@@ -91,5 +99,11 @@ def main():
         rows = cursor.fetchall()
 
         for row in rows:
-            msg = '; '.join(f"{columns[i]}={row[i]}" for i in range(len(columns))) + ";"
+            record = map(lambda x: '{}={}'.format(x[0], x[1]),
+                         zip(columns, row))
+            msg = '{};'.format('; '.join(list(record)))
             info_logger.info(msg)
+
+
+if __name__ == "__main__":
+    main()
