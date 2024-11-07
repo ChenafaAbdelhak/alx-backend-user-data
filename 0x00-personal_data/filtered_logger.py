@@ -1,4 +1,4 @@
-#!/urs/bin/env python3
+#!/usr/bin/env python3
 """module contain filter_datum function"""
 
 from typing import List
