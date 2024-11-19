@@ -44,7 +44,7 @@ class SessionAuth(Auth):
 
         if not session_cookie:
             return False
-        
+
         if not self.user_id_for_session_id(session_cookie):
             return False
         del self.user_id_by_session_id[session_cookie]
