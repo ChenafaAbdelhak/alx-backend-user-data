@@ -17,7 +17,7 @@ def view_all_users() -> str:
 
 
 @app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
-def view_one_user(user_id: str = None) -> str:
+def view_one_user(user_id: str) -> str:
     """ GET /api/v1/users/:id
     Path parameter:
       - User ID
