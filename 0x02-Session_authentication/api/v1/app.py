@@ -14,7 +14,8 @@ app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 auth = None
 # to test in vscode
-#os.environ['AUTH_TYPE'] = 'basic_auth'
+# os.environ['AUTH_TYPE'] = 'basic_auth'
+
 if os.getenv('AUTH_TYPE') == 'auth':
     from api.v1.auth.auth import Auth
     auth = Auth()
@@ -41,7 +42,7 @@ def before_request() -> None:
         return
 
     if auth.authorization_header(request) is None and \
-                auth.session_cookie(request) is None:
+            auth.session_cookie(request) is None:
         print(f"Abort 401: Missing auth header for path {request.path}")
         abort(401)
 
