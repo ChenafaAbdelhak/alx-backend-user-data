@@ -13,7 +13,7 @@ Auth = Auth()
 @app.route("/", methods=["GET"])
 def index() -> str:
     """homepage payload"""
-    return jsonify({"message", "Bienvenue"})
+    return jsonify({"message": "Bienvenue"})
 
 
 @app.route("/users", methods=["POST"])
