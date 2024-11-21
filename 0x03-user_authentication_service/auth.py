@@ -33,5 +33,5 @@ class Auth:
         except NoResultFound:
             return False
         
-        return bcrypt.checkspw(password.encode('utf-8'),
+        return bcrypt.checkpw(password.encode('utf-8'),
                                user.hashed_password)
