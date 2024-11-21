@@ -52,25 +52,25 @@ class DB:
         in the users table as filtered by the method’s input arguments"""
         if not kwargs:
             raise InvalidRequestError
-        
+
         user = self._session.query(User).filter_by(**kwargs).first()
 
         if not user:
             raise NoResultFound
-        
+
         return user
 
-    def update_user(self, user_id :int, **kwargs) -> None:
+    def update_user(self, user_id: int, **kwargs) -> None:
         """takes as argument a required user_id integer
         and arbitrary keyword arguments, and returns None."""
         user = self.find_user_by(id=user_id)
         if user is None:
             return
-        
+
         for key, value in kwargs.items():
             if not hasattr(user, key):
                 raise ValueError
-            
+
             setattr(user, key, value)
 
         self._session.commit()
