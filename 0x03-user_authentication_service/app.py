@@ -18,6 +18,7 @@ def index() -> str:
 
 @app.route("/users", methods=["POST"])
 def users() -> str:
+    """users route"""
     email = request.form.get("email")
     password = request.form.get("password")
 
@@ -75,7 +76,7 @@ def profile() -> str:
 
 @app.route("/reset_password", methods=["POST"])
 def get_reset_password_token() -> str:
-    """reset password route"""
+    """reset password route (gen token)"""
     email = request.form.get("email")
     if not email:
         abort(403)
