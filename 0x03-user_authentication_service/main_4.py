@@ -3,4 +3,4 @@
 from auth import _hash_passwword
 
 
-print(_hash_passwword("Holberton"))
+print(_hash_password("Holberton"))
